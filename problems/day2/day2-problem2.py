@@ -1,30 +1,65 @@
 import os
 import sys
+import re
+import pandas as pd
+from math import prod
 
 class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.total = 0
 
-    def process_line(self, line):
+    def get_min_subset(self, subsets):
+        subsets_df = pd.DataFrame.from_records(subsets)
+        return {
+            color: subsets_df[color].max()
+            for color in ['red', 'green', 'blue']
+        }
+
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        line_split = re.split(', | |:|;|\\n', line)
+        game_id = int(line_split[1])
+        is_game_possible = True
+        subsets = [] # list of {red: R, green: G, blue: B}
+        current_subset = {
+            'red': 0,
+            'green': 0,
+            'blue': 0,
+        }
+        idx = 3
+        while idx != len(line_split): # eof
+            if line_split[idx] == '':
+                idx += 1
+                continue
+        
+            num = int(line_split[idx])
+            idx += 1
+            color = line_split[idx]
+            idx += 1
+            current_subset[color] = num
+
+            if line_split[idx] == '':
+                subsets.append(current_subset)
+                current_subset = {
+                    'red': 0,
+                    'green': 0,
+                    'blue': 0,
+                }
+                idx += 1
+
+        min_subset = self.get_min_subset(subsets)
+        self.total += prod(min_subset.values())
 
     def post_processing(self):
         """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+        pass
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        return self.total #tmp
 
 # don't change this
 if __name__ == '__main__':

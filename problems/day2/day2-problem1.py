@@ -1,30 +1,66 @@
 import os
 import sys
+import re
 
 class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.game_id_total = 0
+        self.max_subset = {
+            'red': 12,
+            'green': 13,
+            'blue': 14,
+        }
 
-    def process_line(self, line):
+    def check_if_subset_possible(self, subset):
+        return subset['red'] <= self.max_subset['red'] and \
+            subset['green'] <= self.max_subset['green'] and \
+            subset['blue'] <= self.max_subset['blue']
+
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        line_split = re.split(', | |:|;|\\n', line)
+        game_id = int(line_split[1])
+        is_game_possible = True
+        subsets = [] # list of {red: R, green: G, blue: B}
+        current_subset = {
+            'red': 0,
+            'green': 0,
+            'blue': 0,
+        }
+        idx = 3
+        while idx != len(line_split): # eof
+            if line_split[idx] == '':
+                idx += 1
+                continue
+        
+            num = int(line_split[idx])
+            idx += 1
+            color = line_split[idx]
+            idx += 1
+            current_subset[color] = num
+
+            if line_split[idx] == '':
+                is_game_possible = is_game_possible and self.check_if_subset_possible(current_subset)
+                current_subset = {
+                    'red': 0,
+                    'green': 0,
+                    'blue': 0,
+                }
+                idx += 1
+
+        if is_game_possible:
+            self.game_id_total += game_id
 
     def post_processing(self):
         """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+        pass
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        return self.game_id_total #tmp
 
 # don't change this
 if __name__ == '__main__':
