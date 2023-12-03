@@ -15,21 +15,6 @@ class Solution:
         [(num_y+1, x) for x in range(num_x-1, num_x+len(num_str)+1)]
         return (gear_y, gear_x) in border
 
-    def get_product_from_star(self, star_y, star_x):
-        border = [(star_y-1, x) for x in range(star_x-1, star_x+2)] + \
-        [(star_y, star_x-1), (star_y, star_x + star_x+1)] + \
-        [(star_y+1, x) for x in range(star_x-1, star_x+2)]
-        numbers_adj_to_star = [
-            n for n in self.numbers
-            if (n[0], n[1]) in border
-        ]
-        if len(numbers_adj_to_star) != 2:
-            print("is not gear")
-            return 0
-        else:
-            print("is gear")
-            return prod([int(n[2]) for n in numbers_adj_to_star])
-
     def process_line(self, line: str, row_idx: int):
         """How to process each line in the input"""
         is_num = False
