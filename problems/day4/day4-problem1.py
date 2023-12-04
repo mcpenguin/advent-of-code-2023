@@ -5,26 +5,30 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.total = 0
 
-    def process_line(self, line):
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        if line != '\n':
+            line = line.replace('\n', '').replace('  ', ' ')
+            game_txt, nums = line.split(':')
+            split = nums.split(' | ')
+            winning_nums = [int(n) for n in split[0].strip().split(' ')]
+            our_nums = [int(n) for n in split[1].strip().split(' ')]
+
+            num_matches = len(set(winning_nums).intersection(set(our_nums)))
+            if num_matches >= 1:
+                self.total += 2 ** (num_matches - 1)
+
 
     def post_processing(self):
         """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+        pass
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        return self.total
 
 # don't change this
 if __name__ == '__main__':
