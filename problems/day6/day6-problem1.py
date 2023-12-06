@@ -1,30 +1,43 @@
 import os
 import sys
+import re
 
 class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.times = {} # race n: time
+        self.distances = {}
 
-    def process_line(self, line):
+    def calc_dist(self, total_time, time_charged):
+        return (total_time - time_charged) * time_charged
+
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
         if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
+            pass
         else:
-            self.current_elf_calories += int(line)
-
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+            split = line.split(':')
+            rest = [int(x) for x in split[1].strip().replace(' +', ' ').split(' ')
+                    if x != '']
+            if split[0] == 'Time':
+                for idx, v in enumerate(rest):
+                    self.times[idx] = v
+            else:
+                for idx, v in enumerate(rest):
+                    self.distances[idx] = v
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        total = 1
+        for time, distance in zip(self.times.values(), self.distances.values()):
+            num_record_beat = 0
+            for t in range(time):
+                if self.calc_dist(time, t) > distance:
+                    num_record_beat += 1
+            total *= num_record_beat
+        return total
 
 # don't change this
 if __name__ == '__main__':
@@ -38,7 +51,8 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+    solution_class.process_line('\n')
+
     solution = solution_class.get_solution()
     print()
 
