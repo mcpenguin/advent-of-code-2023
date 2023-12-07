@@ -1,30 +1,81 @@
 import os
 import sys
+from math import prod
 
 class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.hands_bids = []
+        self.type_order = ['five_of_kind', 'four_of_kind', 'full_house', 'three_of_kind', 'two_pair', 'one_pair', 'high_card']
+        self.card_order = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
 
-    def process_line(self, line):
+    def get_hand_type(self, hand):
+        uniq = list(set([c for c in hand]))
+        # print(hand, uniq)
+        if len(uniq) == 1:
+            return 'five_of_kind'
+        if len(uniq) == 2:
+            c0, c1 = uniq
+            if hand.count(c0) == 4 or hand.count(c1) == 4:
+                return 'four_of_kind'
+            else:
+                return 'full_house'
+        if len(uniq) == 3:
+            c0, c1, c2 = uniq
+            if hand.count(c0) == 3 or hand.count(c1) == 3 or hand.count(c2) == 3:
+                return 'three_of_kind'
+            else:
+                return 'two_pair'
+        if len(uniq) == 4:
+            return 'one_pair'
+        return 'high_card'
+
+    def get_key_for_hand(self, hand):
+        k = 0
+        hand_type = self.get_hand_type(hand)
+        k += self.type_order.index(hand_type)
+        # print(hand,hand_type,  k)
+        for c in hand:
+            k = k * len(self.card_order) + self.card_order.index(c)
+        return k
+    
+    # 1 if hand1 > hand2, 0 if hand1 < hand2
+    def is_hand_bigger_than_hand(self, hand1, hand2):
+        hand1type = self.get_hand_type(hand1)
+        hand2type = self.get_hand_type(hand2)
+        i1 = self.type_order.index(hand1type)
+        i2 = self.type_order.index(hand2type)
+        if i1 < i2:
+            return 0
+        elif i1 > i2:
+            return 1
+        else:
+            for c1, c2 in zip(hand1, hand2):
+                c1i = self.card_order.index(c1)
+                c2i = self.card_order.index(c2)
+                if c1i < c2i:
+                    return 0
+                elif c1i > c2i:
+                    return 1
+        return -1 # invalid
+
+
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
-
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+        if line != '\n':
+            split = line.split(' ')
+            self.hands_bids.append((split[0], int(split[1])))
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        self.hands_bids.sort(key=lambda x: self.get_key_for_hand(x[0]), reverse=True)
+        # print(self.hands_bids)
+        total = 0
+        for i, hb in enumerate(self.hands_bids):
+            total += (i+1) * hb[1]        
+        return total
 
 # don't change this
 if __name__ == '__main__':
@@ -38,7 +89,7 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+
     solution = solution_class.get_solution()
     print()
 
