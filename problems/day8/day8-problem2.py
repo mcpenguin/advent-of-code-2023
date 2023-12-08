@@ -1,32 +1,61 @@
 import os
 import sys
+import copy
+from math import prod
 
 class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.steps = []
+        self.locations = {}
 
-    def process_line(self, line):
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        if line != '\n':
+            if len(self.steps) == 0:
+                self.steps = [c for c in line if c != '\n']
+            else:
+                split = line.split(" = ")
+                start = split[0]                
+                rest = split[1][1:-2].split(", ")
+                self.locations[start] = rest
 
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+    def is_finished(self, locations):
+        letters = [l[-1] for l in locations]
+        return letters.count('Z') == len(letters)
 
     def get_solution(self):
-        """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        locations = [l for l in self.locations.keys() if l[-1] == 'A']
+        num_steps = 0
+        # store the map for one pass thru of the steps
+        agg_map = { l: l for l in self.locations }
+        for s in self.steps:
+            tmp = copy.deepcopy(agg_map)
+            for source, val in tmp.items():
+                
+                if s == 'L':
+                    tmp[source] = self.locations[tmp[source]][0]
+                else:
+                    tmp[source] = self.locations[tmp[source]][1]
+            agg_map = tmp
 
-# don't change this
+        cmap = {}
+        for l in locations:
+            cmap[l] = []
+            i = 1
+            cur = agg_map[l]
+            while i < len(self.locations.keys()):
+                if cur[-1] == 'Z':
+                    cmap[l].append(i)
+                i += 1
+                cur = agg_map[cur]
+
+        num_steps = prod([li[0] for li in cmap.values()]) * len(self.steps)
+        return num_steps
+
+# don't change
 if __name__ == '__main__':
     solution_class = Solution()
     assert len(sys.argv) > 1, "Please provide the name of the input file in the second terminal argument."
@@ -38,7 +67,7 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+
     solution = solution_class.get_solution()
     print()
 

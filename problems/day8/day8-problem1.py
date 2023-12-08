@@ -5,26 +5,35 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.steps = []
+        self.locations = {}
 
-    def process_line(self, line):
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        if line != '\n':
+            if len(self.steps) == 0:
+                self.steps = [c for c in line if c != '\n']
+            else:
+                split = line.split(" = ")
+                start = split[0]                
+                rest = split[1][1:-2].split(", ")
+                self.locations[start] = rest
 
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
 
     def get_solution(self):
-        """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        print(self.locations)
+        print(self.steps)
+        cur_loc = 'AAA'
+        num_steps = 0
+        while cur_loc != 'ZZZ':
+            for s in self.steps:
+                num_steps += 1
+                if s == 'L':
+                    cur_loc = self.locations[cur_loc][0]
+                else:
+                    cur_loc = self.locations[cur_loc][1]
+        return num_steps
 
 # don't change this
 if __name__ == '__main__':
@@ -38,7 +47,7 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+
     solution = solution_class.get_solution()
     print()
 
