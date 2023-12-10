@@ -87,30 +87,19 @@ class Solution:
             loop_fil_not_we = [p for p in loop_fil if self.board[p[0]][p[1]] != ['W', 'E']]
             subtotal = 0
             isIn = False
-            # print(loop_fil_not_we)
             
             # We consider successive consecutive instances of "vertical" pipes;
             # ie pipes which are not NE
             for i in range(0, len(loop_fil_not_we)-1):
                 end = loop_fil_not_we[i+1][1]
                 start = loop_fil_not_we[i][1]
-                # print(start, end, isIn)
 
                 start_dirs = self.board[r][start]
                 end_dirs = self.board[r][end]
 
-                # Case 1: both directions of the pair are not NS,
-                # and they form a "U" shape (LJ or F7), or a "tri" shape (JL or 7F).
-                # This means that the directions is either a horizontal 'border' of the pipe,
-                # or just came after it.
-                # In this case, we "maintain" the value of isIn.
                 if (start_dirs == ['N', 'E'] and end_dirs == ['N', 'W']) or \
                     (start_dirs == ['S', 'E'] and end_dirs == ['S', 'W']):
                     pass
-                # Case 2: both directions of the pair are not NS,
-                # and they form a "cubic" shape (L7 or FJ).
-                # This means that the directions is a horizontal 'border' of the pipe.
-                # In this case, we "invert" the value of isIn.
                 elif (start_dirs == ['N', 'E'] and end_dirs == ['S', 'W']) or \
                     (start_dirs == ['S', 'E'] and end_dirs == ['N', 'W']):
                     isIn = not isIn
@@ -120,7 +109,6 @@ class Solution:
                     isIn = not isIn
                     if isIn:
                         subtotal += end - start - 1
-                    # isIn = not isIn
 
                 elif (start_dirs == ['N', 'W'] and end_dirs == ['N', 'S']) or \
                     (start_dirs == ['S', 'W'] and end_dirs == ['N', 'S']) or \
@@ -131,32 +119,11 @@ class Solution:
 
                     if isIn:
                         subtotal += end - start - 1
-                    # isIn = not isIn
 
-                # Case 4: both directions forms an "inverted" tri shape
-                # We invert isIn. If isIn is true, add the number of empty spaces
-                # to the total
-                # elif (start_dirs == ['N', 'W'] and end_dirs == ['S', 'E']) or \
-                #     (start_dirs == ['S', 'W'] and end_dirs == ['N', 'E']):
-                #     # isIn = not isIn
-                #     if isIn:
-                #         subtotal += end - start - 1
-                # Case 5: Anything else; the pipes are *not* a border of the pipe.
-                # W invert isIn. If isIn is true, add the number of empty spaces
-                # to the total
                 else:
                     raise Exception(f"unexpected: start={start_dirs}, end={end_dirs}")
-                    # isIn = not isIn
-                    # if isIn:
-                    #     subtotal += end - start - 1
-
-            # subtotal -= len(loop_fil_we)
-            # print(subtotal)
 
             total += subtotal
-            # for i in range(0, )
-        # print(loop)
-        
         
         return total
 
