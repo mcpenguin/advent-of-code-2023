@@ -5,26 +5,90 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.records = []
+        self.counts = []
+        self.multiplier = 5
 
-    def process_line(self, line):
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        if line != '\n':
+            split = line.split(" ")
+            record = []
+            for i in range(self.multiplier-1):
+                record.extend(list(split[0]))
+                record.append('?')
+            record.extend(list(split[0]))
 
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+            self.records.append(record)
+            self.counts.append([int(x) for x in split[1].replace('\n', '').split(',')]*self.multiplier)
+
+    # Returns tuple of num_arrangements, num_arrangements_that_use_last_position
+    def get_num_arrangements_for_record(self, 
+        record, counts, cum_count, cur_record_idx=0, cur_count_idx=0) -> tuple[int, int]:
+        # print(cur_record_idx, cur_count_idx, record[cur_record_idx:], counts[cur_count_idx:])
+
+        if cur_count_idx == len(counts):
+            if '#' not in record[cur_record_idx:]:
+                return 1, 0
+            else:
+                return 0, 0
+        if len(record) - cur_record_idx < cum_count + len(counts) - cur_count_idx - 1:
+            if len(record) - cur_record_idx == 0:
+                return 0, 1
+            else:
+                return 0, 0
+        
+        total = 0
+        num_arr_that_use_last_spot = 0
+
+        # We use sliding windows
+        i = cur_record_idx
+        head_counts = counts[cur_count_idx]
+        num_dot_in_window = record[i:i+head_counts].count('.')
+        while i <= len(record) - head_counts:
+            # print(cur_record_idx, i)
+            # if '#' not in set(record[cur_record_idx:i]) and \
+            #     '.' not in set(record[i:i+head_counts]) and \
+            #     (i+head_counts == len(record) or record[i+head_counts] != '#'):
+            if num_dot_in_window == 0 and \
+                (i+head_counts == len(record) or record[i+head_counts] != '#'):
+
+                num_arr, sub_num_arr_that_use_last_spot = self.get_num_arrangements_for_record(
+                    record = record, 
+                    counts = counts,
+                    cur_record_idx = i + head_counts + 1,
+                    cur_count_idx = cur_count_idx + 1,
+                    cum_count = cum_count - head_counts
+                )
+                total += num_arr
+                num_arr_that_use_last_spot += sub_num_arr_that_use_last_spot
+
+            # Update sliding window values if while condition is still vallid
+            if i < len(record) - head_counts:
+                if record[i] == '#':
+                    break
+                if record[i] == '.':
+                    num_dot_in_window -= 1
+                if record[i+head_counts] == '.':
+                    num_dot_in_window += 1
+
+            i += 1
+
+        return total, num_arr_that_use_last_spot
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        total = 0
+        for idx, (record, count) in enumerate(zip(self.records, self.counts)):
+            # print(idx)
+            # print(record)
+            # print(count)
+            num_arr, num_arr_that_use_last_spot = self.get_num_arrangements_for_record(record, count, sum(count))
+            print(num_arr, num_arr_that_use_last_spot)
+            # crash
+            total += num_arr
+        return total
 
 # don't change this
 if __name__ == '__main__':
@@ -38,7 +102,7 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+
     solution = solution_class.get_solution()
     print()
 

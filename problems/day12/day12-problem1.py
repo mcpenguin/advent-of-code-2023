@@ -5,26 +5,52 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.records = []
+        self.counts = []
 
-    def process_line(self, line):
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        if line != '\n':
+            split = line.split(" ")
+            self.records.append(list(split[0]))
+            self.counts.append([int(x) for x in split[1].replace('\n', '').split(',')])
 
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+    def get_num_arrangements_for_record(self, record, counts):
+        # print(record, counts)
+        if len(counts) == 0:
+            if '#' not in record:
+                return 1
+            else:
+                return 0
+        # if len(record) == sum(counts):
+        #     if len(set(record)) == 1 and '.' not in record:
+        #         return 1
+        #     else:
+        #         return 0
+        if len(record) < sum(counts) + len(counts) - 1:
+            return 0
+        
+        total = 0
+        for i in range(0, len(record) - counts[0] + 1):
+            if '#' not in set(record[:i]) and \
+                '.' not in set(record[i:i+counts[0]]) and \
+                (i+counts[0] == len(record) or record[i+counts[0]] != '#'):
+                total += self.get_num_arrangements_for_record(
+                    record[i+counts[0]+1:], 
+                    counts[1:]
+                )
+        return total
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        total = 0
+        for record, count in zip(self.records, self.counts):
+            num_arr = self.get_num_arrangements_for_record(record, count)
+            # print(num_arr)
+            # crash
+            total += num_arr
+        return total
 
 # don't change this
 if __name__ == '__main__':
@@ -38,7 +64,7 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+
     solution = solution_class.get_solution()
     print()
 
