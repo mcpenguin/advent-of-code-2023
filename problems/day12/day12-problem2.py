@@ -9,6 +9,10 @@ class Solution:
         self.counts = []
         self.multiplier = 5
 
+        # 2D array for memoization
+        # (record idx, count idx)
+        self.memo_array = []
+
     def process_line(self, line: str):
         """How to process each line in the input"""
 
@@ -25,19 +29,20 @@ class Solution:
 
     # Returns tuple of num_arrangements, num_arrangements_that_use_last_position
     def get_num_arrangements_for_record(self, 
-        record, counts, cum_count, cur_record_idx=0, cur_count_idx=0) -> tuple[int, int]:
-        # print(cur_record_idx, cur_count_idx, record[cur_record_idx:], counts[cur_count_idx:])
+        record, counts, cum_count, cur_record_idx=0, cur_count_idx=0) -> int:
 
         if cur_count_idx == len(counts):
             if '#' not in record[cur_record_idx:]:
-                return 1, 0
+                return 1
             else:
-                return 0, 0
+                return 0
         if len(record) - cur_record_idx < cum_count + len(counts) - cur_count_idx - 1:
             if len(record) - cur_record_idx == 0:
-                return 0, 1
+                return 0
             else:
-                return 0, 0
+                return 0
+        if self.memo_array[cur_record_idx][cur_count_idx] != -1:
+            return self.memo_array[cur_record_idx][cur_count_idx]
         
         total = 0
         num_arr_that_use_last_spot = 0
@@ -47,14 +52,10 @@ class Solution:
         head_counts = counts[cur_count_idx]
         num_dot_in_window = record[i:i+head_counts].count('.')
         while i <= len(record) - head_counts:
-            # print(cur_record_idx, i)
-            # if '#' not in set(record[cur_record_idx:i]) and \
-            #     '.' not in set(record[i:i+head_counts]) and \
-            #     (i+head_counts == len(record) or record[i+head_counts] != '#'):
             if num_dot_in_window == 0 and \
                 (i+head_counts == len(record) or record[i+head_counts] != '#'):
 
-                num_arr, sub_num_arr_that_use_last_spot = self.get_num_arrangements_for_record(
+                num_arr = self.get_num_arrangements_for_record(
                     record = record, 
                     counts = counts,
                     cur_record_idx = i + head_counts + 1,
@@ -62,7 +63,6 @@ class Solution:
                     cum_count = cum_count - head_counts
                 )
                 total += num_arr
-                num_arr_that_use_last_spot += sub_num_arr_that_use_last_spot
 
             # Update sliding window values if while condition is still vallid
             if i < len(record) - head_counts:
@@ -75,18 +75,22 @@ class Solution:
 
             i += 1
 
-        return total, num_arr_that_use_last_spot
+        # Update memo array
+        if self.memo_array[cur_record_idx][cur_count_idx] == -1:
+            self.memo_array[cur_record_idx][cur_count_idx] = total
+
+        return total
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
+
         total = 0
         for idx, (record, count) in enumerate(zip(self.records, self.counts)):
-            # print(idx)
-            # print(record)
-            # print(count)
-            num_arr, num_arr_that_use_last_spot = self.get_num_arrangements_for_record(record, count, sum(count))
-            print(num_arr, num_arr_that_use_last_spot)
-            # crash
+            # Initialize memo dict
+            self.memo_array = []
+            for i in range(len(record)):
+                self.memo_array.append([-1]*len(count))
+            num_arr = self.get_num_arrangements_for_record(record, count, sum(count))
             total += num_arr
         return total
 
