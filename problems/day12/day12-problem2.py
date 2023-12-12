@@ -45,7 +45,6 @@ class Solution:
             return self.memo_array[cur_record_idx][cur_count_idx]
         
         total = 0
-        num_arr_that_use_last_spot = 0
 
         # We use sliding windows
         i = cur_record_idx
