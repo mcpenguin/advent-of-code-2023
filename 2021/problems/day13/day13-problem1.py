@@ -56,10 +56,10 @@ class Solution:
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
         cur_state = copy.deepcopy(self.dot_pos_set)
-        for fold_xy, fold_num in self.folds:
+        for fold_xy, fold_num in self.folds[0:1]:
             cur_state = self.get_state_after_fold(cur_state, fold_xy, fold_num)
 
-        return self.print_state(cur_state)
+        return len(cur_state)
 
 # don't change this
 if __name__ == '__main__':
