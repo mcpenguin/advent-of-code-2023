@@ -8,7 +8,7 @@ class Solution:
         self.current_elf_calories = 0
         self.elf_calories_list = []
 
-    def process_line(self, line):
+    def process_line(self, line: str):
         """How to process each line in the input"""
 
         if line == '\n':
@@ -16,10 +16,6 @@ class Solution:
             self.current_elf_calories = 0
         else:
             self.current_elf_calories += int(line)
-
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
@@ -38,7 +34,7 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+    
     solution = solution_class.get_solution()
     print()
 
