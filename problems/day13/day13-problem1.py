@@ -5,26 +5,45 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.boards = []
+        self.board = []
 
     def process_line(self, line):
         """How to process each line in the input"""
 
         if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
+            self.boards.append(self.board)
+            self.board = []
         else:
-            self.current_elf_calories += int(line)
+            self.board.append([c for c in line if c != '\n'])
 
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+    def board_has_vertical_reflection(self, board, num_cols_left):
+        num_cols_right = len(board[0]) - num_cols_left
+        for i in range(0, min(num_cols_left, num_cols_right)):
+            for j in range(0, len(board)):
+                if board[j][num_cols_left-i-1] != board[j][num_cols_left+i]:
+                    return False
+        return True
+    
+    def board_has_horizontal_reflection(self, board, num_rows_left):
+        num_rows_right = len(board) - num_rows_left
+        for i in range(0, min(num_rows_left, num_rows_right)):
+            for j in range(0, len(board[0])):
+                if board[num_rows_left-i-1][j] != board[num_rows_left+i][j]:
+                    return False
+        return True
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        total = 0
+        for board in self.boards:
+            for r in range(len(board)):
+                if self.board_has_horizontal_reflection(board, r):
+                    total += 100 * r
+            for c in range(len(board[0])):
+                if self.board_has_vertical_reflection(board, c):
+                    total += c
+        return total
 
 # don't change this
 if __name__ == '__main__':
@@ -38,7 +57,7 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+    solution_class.process_line('\n')
     solution = solution_class.get_solution()
     print()
 
