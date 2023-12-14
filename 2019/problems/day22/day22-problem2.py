@@ -6,10 +6,12 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.num_cards = 10007
+        # self.num_cards = 10007
+        self.num_cards = 100169
+
         self.cards = list(range(self.num_cards))
         self.shuffles = []
-        self.num_iterations = 1
+        self.num_iterations = 100000
 
     def process_line(self, line: str):
         """How to process each line in the input"""
@@ -43,11 +45,21 @@ class Solution:
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
         cards = copy.deepcopy(self.cards)
+        positions_after_each_it = []
         # for it in range(self.num_iterations):
         cur_pos = 2019 # position we want
-        for shuffle in self.shuffles[::-1]:
-            cur_pos = self.get_pos_mapped_to_pos_in_shuffle(cur_pos, shuffle)
-            print(shuffle, cur_pos)
+        positions_after_each_it.append(cur_pos)
+        for it in range(self.num_iterations):
+            for shuffle in self.shuffles[::-1]:
+                cur_pos = self.get_pos_mapped_to_pos_in_shuffle(cur_pos, shuffle)
+            
+            try:
+                index = positions_after_each_it.index(cur_pos)
+            except:
+                index = None
+            if index is not None:
+                print(f"Position after iteration {it+1} is the same as position after position after iteration {index}")
+            positions_after_each_it.append(cur_pos)
 
         # print(cards)
         return cur_pos
