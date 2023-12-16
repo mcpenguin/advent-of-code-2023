@@ -5,26 +5,26 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.seq = []
 
     def process_line(self, line):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        if line != '\n':
+            self.seq = line[:-1].split(',')
 
-    def post_processing(self):
-        """Function that is called after all the lines have been read"""
-        self.elf_calories_list.append(self.current_elf_calories)
+    def get_hash(self, text):
+        total = 0
+        for c in text:
+            total = ((total + ord(c)) * 17) % 256
+        return total
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        total = 0
+        for t in self.seq:
+            total += self.get_hash(t)
+        return total
 
 # don't change this
 if __name__ == '__main__':
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     with open(filename) as file:
         for line in file:
             solution_class.process_line(line)
-    solution_class.post_processing()
+
     solution = solution_class.get_solution()
     print()
 
