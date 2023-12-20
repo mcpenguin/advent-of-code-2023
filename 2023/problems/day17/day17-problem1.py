@@ -11,7 +11,7 @@ class Solution:
         self.num_rows = 0
         self.num_cols = 0
 
-        self.unvisited = set([]) # set of unvisited nodes
+        self.unvisited: set[tuple[int, int]] = set([]) # set of unvisited nodes
         # 2D array (row_idx, col_idx); each value is (min_val, {(dir, num): val})
         # where the value associated with the key (dir, num)
         # means the minimum distance of the path 
@@ -19,7 +19,7 @@ class Solution:
         # “run” of exactly num “dir” (with the preceding direction 
         # before the run being different)
         # the directions represent "flowing into" the associated node
-        self.min_heat_loss_arr = []
+        self.min_heat_loss_arr: dict[tuple[int, int], dict] = {}
         
         self.nums = range(1, 4)
         self.direction_dict = {
@@ -77,10 +77,10 @@ class Solution:
     #     return min_val, min_path
 
     def get_neighbors_of_pos(self, row_idx, col_idx):
-        up_l = [('up', i, (row_idx + i, col_idx), [(row_idx + j, col_idx) for j in range(0, i)]) for i in self.nums]
-        down_l = [('down', i, (row_idx - i, col_idx), [(row_idx - j, col_idx) for j in range(0, i)]) for i in self.nums]
-        left_l = [('left', i, (row_idx, col_idx + i), [(row_idx, col_idx + j) for j in range(0, i)]) for i in self.nums]
-        right_l = [('right', i, (row_idx, col_idx - i), [(row_idx, col_idx - j) for j in range(0, i)]) for i in self.nums]
+        up_l = [('up', i, (row_idx - i, col_idx), [(row_idx - j, col_idx) for j in range(1, i+1)]) for i in self.nums]
+        down_l = [('down', i, (row_idx + i, col_idx), [(row_idx + j, col_idx) for j in range(1, i+1)]) for i in self.nums]
+        left_l = [('left', i, (row_idx, col_idx - i), [(row_idx, col_idx - j) for j in range(1, i+1)]) for i in self.nums]
+        right_l = [('right', i, (row_idx, col_idx + i), [(row_idx, col_idx + j) for j in range(1, i+1)]) for i in self.nums]
         # if last_direction == 'up':
         #     up_l = up_l[:-1]
         # elif last_direction == 'down':
@@ -110,6 +110,14 @@ class Solution:
         # if dir_name == 'right':
         #     return path[-1 * bound:] == [(row_idx, col_idx+j) for j in range(-1 * bound, 1, 1)]
 
+    def get_perpend_directions(self, direction):
+        return {
+            'up': ['left', 'right'],
+            'down': ['left', 'right'],
+            'left': ['up', 'down'],
+            'right': ['up', 'down'],
+        }[direction]
+
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
         # init min heat loss arr
@@ -121,21 +129,34 @@ class Solution:
             }
         }
         for i in range(self.num_rows):
-            self.min_heat_loss_arr.append([
-                copy.deepcopy(default)
-            ]*self.num_cols)
-
             for j in range(self.num_cols):
+                self.min_heat_loss_arr[(i, j)] = copy.deepcopy(default)
                 self.unvisited.add((i, j))
 
-        self.min_heat_loss_arr[0][0] = {
-            'min_val': self.grid[0][0],
-            'min_path_vals': {
-                (direction, num): self.grid[0][0] \
+        self.min_heat_loss_arr[(0, 0)] = {
+            'min_val': 0,
+            'min_path_vals': copy.deepcopy({
+                (direction, num): 0 \
                     for direction in self.directions 
                     for num in self.nums
-            }
+            })
         }
+        # self.min_heat_loss_arr[(0, 1)] = {
+        #     'min_val': self.grid[0][1],
+        #     'min_path_vals': copy.deepcopy({
+        #         (direction, num): self.grid[0][1] \
+        #             for direction in self.directions 
+        #             for num in self.nums
+        #     })
+        # }
+        # self.min_heat_loss_arr[(1, 0)] = {
+        #     'min_val': self.grid[1][0],
+        #     'min_path_vals': copy.deepcopy({
+        #         (direction, num): self.grid[1][0] \
+        #             for direction in self.directions 
+        #             for num in self.nums
+        #     })
+        # }
         # print(self.min_heat_loss_arr)
 
         # assign None values to inaccessible paths
@@ -156,35 +177,47 @@ class Solution:
         # print(self.min_heat_loss_arr[0][2])
 
         while len(self.unvisited) > 0:
-            cur_pos = min(self.unvisited, key=lambda p: self.min_heat_loss_arr[p[0]][p[1]]['min_val'])
+            # print('unvisited', {p: self.min_heat_loss_arr[p]['min_val'] for p in self.unvisited})
+            cur_pos = min(self.unvisited, key=lambda p: self.min_heat_loss_arr[p]['min_val'])
             cur_row_idx, cur_col_idx = cur_pos  
             # print(cur_pos)
             # print(self.min_heat_loss_arr[cur_row_idx][cur_col_idx])
 
             neighbors = self.get_neighbors_of_pos(cur_row_idx, cur_col_idx)
             for direction, num, pos_head, pos_list in neighbors:
+                # print(cur_pos, direction, num, pos_list, pos_head)
                 pos_head_row_idx, pos_head_col_idx = pos_head
-                print(cur_pos, direction, num, pos_list, pos_head)
                 # print(cur_pos, pos_list, self.min_heat_loss_arr[pos_head_row_idx][pos_head_col_idx])
                 # (direction, num) is the "distance" away from cur_pos to pos_head
                 if pos_head in self.unvisited:
                     # update the min path for (direction, num) for neighbor
-                    self.min_heat_loss_arr[pos_head_row_idx][pos_head_col_idx]['min_path_vals'][(direction, num)] = min(
-                        self.min_heat_loss_arr[pos_head_row_idx][pos_head_col_idx]['min_path_vals'][(direction, num)],
+                    # print(cur_pos, pos_list)
+                    # print(self.min_heat_loss_arr[pos_head_row_idx][pos_head_col_idx]['min_path_vals'][(direction, num)],
+                    #     *[
+                    #         self.min_heat_loss_arr[cur_pos]['min_path_vals'][(other_direction, other_num)] + sum([self.grid[pos[0]][pos[1]] for pos in pos_list])
+                    #         for other_direction in filter(lambda d: d != direction, self.directions)
+                    #         for other_num in self.nums
+                    #     ])
+                    self.min_heat_loss_arr[pos_head]['min_path_vals'][(direction, num)] = min(
+                        self.min_heat_loss_arr[pos_head]['min_path_vals'][(direction, num)],
                         *[
-                            self.min_heat_loss_arr[cur_row_idx][cur_col_idx]['min_path_vals'][(other_direction, other_num)] + sum([self.grid[pos[0]][pos[1]] for pos in pos_list])
-                            for other_direction in filter(lambda d: d != direction, self.directions)
+                            self.min_heat_loss_arr[cur_pos]['min_path_vals'][(other_direction, other_num)] + sum([self.grid[pos[0]][pos[1]] for pos in pos_list])
+                            for other_direction in self.get_perpend_directions(direction)
                             for other_num in self.nums
                         ]
                     )
                     # print(self.min_heat_loss_arr[pos_head_row_idx][pos_head_col_idx])
                     # update the "ultimate" min value for the tentative distance of the neighbor
-                    self.min_heat_loss_arr[pos_head_row_idx][pos_head_col_idx]['min_val'] = min(
-                        self.min_heat_loss_arr[pos_head_row_idx][pos_head_col_idx]['min_val'],
-                        self.min_heat_loss_arr[pos_head_row_idx][pos_head_col_idx]['min_path_vals'][(direction, num)]
+                    self.min_heat_loss_arr[pos_head]['min_val'] = min(
+                        self.min_heat_loss_arr[pos_head]['min_val'],
+                        self.min_heat_loss_arr[pos_head]['min_path_vals'][(direction, num)]
                     )
+                    # print('unvisited', {p: self.min_heat_loss_arr[p]['min_val'] for p in self.unvisited})
+
             # mark the current node as visited
             self.unvisited.remove(cur_pos)
+            # crash
+            # print(self.min_heat_loss_arr)
 
         # init visited
         # cur_pos = (0, 0) # original node
@@ -223,12 +256,10 @@ class Solution:
         #         cur_pos = min(self.unvisited, key=lambda p: self.min_heat_loss_arr[p[0]][p[1]])
         #         cur_row_idx, cur_col_idx = cur_pos
 
-        for r in self.min_heat_loss_arr:
-            for c in r:
-                print(c['min_val'], end=" ")
-            print("\n")
+        print({k: v['min_val'] for k, v in self.min_heat_loss_arr.items()})
+        # print(self.min_heat_loss_arr[(self.num_rows - 1, self.num_cols - 1)]['min_path_vals'])
 
-        return self.min_heat_loss_arr[self.num_rows - 1][self.num_cols - 1]['min_val']
+        return self.min_heat_loss_arr[(self.num_rows - 1, self.num_cols - 1)]['min_val']
 
 
         # print(self.min_heat_loss_arr)
