@@ -74,7 +74,15 @@ class Solution:
                 self.min_heat_loss_arr[(i, j)] = copy.deepcopy(default)
                 self.unvisited.add((i, j))
 
-        self.min_heat_loss_arr[(0, 0)] = {
+        # self.min_heat_loss_arr[(0, 0)] = {
+        #     'min_val': 0,
+        #     'min_path_vals': copy.deepcopy({
+        #         (direction, num): 0 \
+        #             for direction in self.directions 
+        #             for num in self.nums
+        #     })
+        # }
+        self.min_heat_loss_arr[(self.num_rows-1, self.num_cols-1)] = {
             'min_val': 0,
             'min_path_vals': copy.deepcopy({
                 (direction, num): 0 \
@@ -82,6 +90,7 @@ class Solution:
                     for num in self.nums
             })
         }
+
         # self.min_heat_loss_arr[(0, 1)] = {
         #     'min_val': self.grid[0][1],
         #     'min_path_vals': copy.deepcopy({
@@ -219,7 +228,9 @@ class Solution:
         # print(self.min_heat_loss_arr[(4, 11)])
         # print(self.min_heat_loss_arr[(self.num_rows - 1, self.num_cols - 1)]['min_path_vals'])
 
-        return self.min_heat_loss_arr[(self.num_rows - 1, self.num_cols - 1)]['min_val']
+        # return self.min_heat_loss_arr[(self.num_rows - 1, self.num_cols - 1)]['min_val']
+        return self.min_heat_loss_arr[(0, 0)]['min_val']
+
 
 
         # print(self.min_heat_loss_arr)

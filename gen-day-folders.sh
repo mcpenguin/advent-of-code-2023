@@ -5,7 +5,7 @@
 
 year=$1
 
-for i in {22}
+for i in {1..25}
 do
     problems_folder="./${year}/problems/day${i}"
     # init problem folder
