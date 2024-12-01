@@ -1,26 +1,30 @@
 import os
 import sys
+import re
+from collections import Counter
 
 class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.list1 = []
+        self.list2 = []
 
     def process_line(self, line: str):
         """How to process each line in the input"""
-
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        ilist = re.split(' |\n', line)
+        n1 = int(ilist[0])
+        n2 = int(ilist[-2])
+        self.list1.append(n1)
+        self.list2.append(n2)
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        counter = Counter(self.list2)
+        result = 0
+        for n1 in self.list1:
+            result += counter[n1] * n1
+        return result
 
 # don't change this
 if __name__ == '__main__':
