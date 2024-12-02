@@ -5,22 +5,28 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.num_safe = 0
+
+    def is_safe(self, l: list[int]):
+        diff = []
+        abs_diff = []
+        for i in range(0, len(l) - 1):
+            diff.append(l[i+1] - l[i])
+            abs_diff.append(abs(l[i+1] - l[i]))
+        if (min(diff) > 0 or max(diff) < 0) and (min(abs_diff) >= 1 and max(abs_diff)) <= 3:
+            return True
+        return False
 
     def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        l = [int(x) for x in line.split()]
+        if self.is_safe(l):
+            self.num_safe += 1
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        return self.num_safe
 
 # don't change this
 if __name__ == '__main__':
