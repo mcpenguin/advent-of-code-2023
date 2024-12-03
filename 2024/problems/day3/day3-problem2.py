@@ -1,26 +1,34 @@
 import os
 import sys
+import re
 
 class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.line = ""
 
     def process_line(self, line: str):
         """How to process each line in the input"""
-
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        self.line += line
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        result = 0
+        activate = True
+        for mul in re.finditer('mul\([0-9]+\,[0-9]+\)|do\(\)|don\'t\(\)', self.line):
+            s = self.line[mul.start(0):mul.end(0)]
+            if 'don\'t' in s:
+                activate = False
+            elif 'do' in s:
+               activate = True
+            else:
+                l = re.split('[\(\)\,]', s)
+                n1 = int(l[1])
+                n2 = int(l[2])
+                if activate and n1 < 1000 and n2 < 1000:
+                    result += n1 * n2
+        return result
 
 # don't change this
 if __name__ == '__main__':
