@@ -5,22 +5,59 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.is_first_line = True
+        self.words = []
 
     def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        self.words.append(line)
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        # horizontal
+        word = 'XMAS'
+        count = 0
+        for i in range(len(self.words)):
+            for j in range(0, len(self.words[0]) - len(word) + 1):
+                substr = ''.join([self.words[i][k] for k in range(j, j + len(word))])
+                if substr == word:
+                    print(i, j, 'h')
+                    count += 1
+                if substr == word[::-1]:
+                    print(i, j, 'hr')
+                    count += 1
+        # vertical
+        for i in range(len(self.words) - len(word) + 1):
+            for j in range(0, len(self.words[0])):
+                substr = ''.join([self.words[k][j] for k in range(i, i + len(word))])
+                if substr == word:
+                    print(i, j, 'v')
+                    count += 1
+                if substr == word[::-1]:
+                    print(i, j, 'vr')
+                    count += 1
+        # diagonal right
+        for i in range(len(self.words) - len(word) + 1):
+            for j in range(len(self.words[0]) - len(word) + 1):
+                substr = ''.join([self.words[i+k][j+k] for k in range(len(word))])
+                if substr == word:
+                    print(i, j, 'dr')
+                    count += 1
+                if substr == word[::-1]:
+                    print(i, j, 'drr')
+                    count += 1
+        # diagonal left
+        for i in range(len(self.words) - len(word) + 1):
+            for j in range(len(word) - 1, len(self.words[0])):
+                substr = ''.join([self.words[i+k][j-k] for k in range(len(word))])
+                if substr == word:
+                    print(i, j, 'dl')
+                    count += 1
+                if substr == word[::-1]:
+                    print(i, j, 'dlr')
+                    count += 1
+        return count
 
 # don't change this
 if __name__ == '__main__':

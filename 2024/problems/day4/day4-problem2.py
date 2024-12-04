@@ -5,22 +5,27 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.is_first_line = True
+        self.words = []
 
     def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        self.words.append(line)
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        # horizontal
+        count = 0
+        for i in range(len(self.words) - 2):
+            for j in range(len(self.words[0]) - 2):
+                if (
+                    self.words[i+1][j+1] == 'A' and
+                    len(set([self.words[i][j], self.words[i+2][j+2]]).intersection(['M', 'S'])) == 2 and
+                    len(set([self.words[i+2][j], self.words[i][j+2]]).intersection(['M', 'S'])) == 2
+                ):
+                    count += 1
+        return count
 
 # don't change this
 if __name__ == '__main__':
