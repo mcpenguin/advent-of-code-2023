@@ -7,20 +7,49 @@ class Solution:
     def __init__(self):
         self.current_elf_calories = 0
         self.elf_calories_list = []
+        self.result = 0
 
     def process_line(self, line: str):
         """How to process each line in the input"""
+        sol, nlist = line.split(': ')
+        sol = int(sol)
+        nlist = [int(x) for x in nlist.split()]
+        if self.is_eqn_poss(nlist, sol):
+            self.result += sol
+        
+    def is_eqn_poss(self, nlist, sol):
+        alist_poss = self.gen_alist_poss(len(nlist) - 1)
+        for alist in alist_poss:
+            if self.get_results_of_eqn(nlist, alist) == sol:
+                return True
+        return False
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
+    def gen_alist_poss(self, length):
+        if length == 0:
+            return []
         else:
-            self.current_elf_calories += int(line)
+            ll = self.gen_alist_poss(length - 1)
+            addl = [l + ['+'] for l in ll]
+            mull = [l + ['*'] for l in ll]
+            conl = [l + ['||'] for l in ll]
+            return addl + mull + conl
+
+    def get_results_of_eqn(self, nlist, alist):
+        result = nlist[0]
+        for i in range(len(nlist)-1):
+            a = alist[i]
+            n = nlist[i+1]
+            if a == '+':
+                result += n
+            elif a == '*':
+                result *= n
+            elif a == '||':
+                result = result * 10 + n
+        return result
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        return self.result
 
 # don't change this
 if __name__ == '__main__':
