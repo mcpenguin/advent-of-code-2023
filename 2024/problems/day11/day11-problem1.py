@@ -5,22 +5,31 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        pass
 
     def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
+        self.nums = line.strip().split(' ')
+
+    def change_stone(self, num):
+        if num == '0':
+            return ['1']
+        elif len(num) % 2 == 0:
+            return [str(int(str(num[:len(num) // 2]))), str(int(str(num[len(num) // 2:])))]
         else:
-            self.current_elf_calories += int(line)
+            return [str(int(num) * 2024)]
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        iterations = 25
+        for i in range(iterations):
+            new_nums = []
+            for num in self.nums:
+                new_nums.extend(self.change_stone(num))
+            self.nums = new_nums
+        return len(self.nums)
+
 
 # don't change this
 if __name__ == '__main__':
