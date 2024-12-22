@@ -5,22 +5,43 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.seeds = []
 
     def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        self.seeds.append(int(line.strip()))
+
+    def mix(self, n1, n2):
+        return n1 ^ n2
+    
+    def prune(self, n1):
+        return n1 % 16777216
+    
+    def get_next(self, n):
+        r = n * 64
+        n = self.mix(n, r)
+        n = self.prune(n)
+        r = n // 32
+        n = self.mix(n, r)
+        n = self.prune(n)
+        r = n * 2048
+        n = self.mix(n, r)
+        n = self.prune(n)
+        return n
+
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        it = 10
+        res = 0
+        for seed in self.seeds:
+            cur = seed
+            for i in range(it):
+                cur = self.get_next(cur)
+            # print(seed, cur)
+            res += cur
+        return res
 
 # don't change this
 if __name__ == '__main__':

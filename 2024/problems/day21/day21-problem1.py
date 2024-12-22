@@ -5,17 +5,12 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.codes = []
 
     def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        self.codes.append(line.strip())
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
