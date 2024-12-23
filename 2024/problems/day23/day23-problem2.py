@@ -5,22 +5,56 @@ class Solution:
     """Class for solution"""
 
     def __init__(self):
-        self.current_elf_calories = 0
-        self.elf_calories_list = []
+        self.graph = {}
+        self.nodes = set()
+        self.edges = []
 
     def process_line(self, line: str):
         """How to process each line in the input"""
 
-        if line == '\n':
-            self.elf_calories_list.append(self.current_elf_calories)
-            self.current_elf_calories = 0
-        else:
-            self.current_elf_calories += int(line)
+        start, end = line.strip().split('-')
+        if start not in self.graph:
+            self.graph[start] = set()
+        if end not in self.graph:
+            self.graph[end] = set()
+
+        # self.graph[start].add(start)
+        self.graph[start].add(end)
+        self.graph[end].add(start)
+        # self.graph[end].add(end)
+        self.nodes.add(start)
+        self.nodes.add(end)
+
+        self.edges.append(set([start, end]))
+
+    def set_equal(self, s1, s2):
+        return len(s1.difference(s2).union(s2.difference(s1))) == 0
+    
+    def fully_conn(self, node):
+        edges = self.graph[node]
+        print(node, edges)
+        for end in edges:
+            edges = edges.intersection(self.graph[end])
+            print(end, self.graph[end], edges)
+        return len(edges)
 
     def get_solution(self):
         """How to retrieve the solution once all lines have been processed"""
-        self.elf_calories_list.sort(reverse=True)
-        return sum(self.elf_calories_list[0:3])
+        size = 2
+        while len(self.edges) > (size * (size + 1)) // 2:
+            print(size, len(self.edges))
+            cur = []
+            for nodes in self.edges:
+                for n in self.nodes:
+                    if n not in nodes and all([n in self.graph[node] for node in nodes]):
+                        cur.append(nodes.union(set([n])))
+                        break
+            self.edges = cur
+            size += 1
+        pw = ','.join(sorted(self.edges[0]))
+
+        return pw
+
 
 # don't change this
 if __name__ == '__main__':
